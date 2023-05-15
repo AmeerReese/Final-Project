@@ -1,0 +1,43 @@
+pip install sqlite3
+import tkinter as tk
+import sqlite3
+
+class App:
+    def __init__(self, master):
+        self.master = master
+        master.title("Database App")
+
+        self.label = tk.Label(master, text="Enter Name:")
+        self.label.pack()
+
+        self.entry = tk.Entry(master)
+        self.entry.pack()
+
+        self.button = tk.Button(master, text="Save", command=self.save_data)
+        self.button.pack()
+
+    def save_data(self):
+        name = self.entry.get()
+
+        # Call custom function to save data to database
+        save_to_database(name)
+
+        self.entry.delete(0, tk.END)
+
+def save_to_database(name):
+    conn = sqlite3.connect('database.db')
+    c = conn.cursor()
+
+    c.execute('CREATE TABLE IF NOT EXISTS users (name TEXT)')
+    c.execute('INSERT INTO users (name) VALUES (?)', (name,))
+    conn.commit()
+
+    conn.close()
+
+def main():
+    root = tk.Tk()
+    app = App(root)
+    root.mainloop()
+
+if __name__ == '__main__':
+    main()
