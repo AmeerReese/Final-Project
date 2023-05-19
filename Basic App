@@ -1,43 +1,47 @@
-pip install sqlite3
 import tkinter as tk
 import sqlite3
 
-class App:
-    def __init__(self, master):
-        self.master = master
-        master.title("Database App")
+def save_data():
+    name = name_entry.get()
+    age = age_entry.get()
 
-        self.label = tk.Label(master, text="Enter Name:")
-        self.label.pack()
+    connection = sqlite3.connect("userdata.db")
+    cursor = connection.cursor()
+    cursor.execute("CREATE TABLE IF NOT EXISTS users (name TEXT, age INTEGER)")
+    cursor.execute("INSERT INTO users VALUES (?, ?)", (name, age))
+    connection.commit()
+    connection.close()
 
-        self.entry = tk.Entry(master)
-        self.entry.pack()
+    name_entry.delete(0, tk.END)
+    age_entry.delete(0, tk.END)
 
-        self.button = tk.Button(master, text="Save", command=self.save_data)
-        self.button.pack()
+def show_data():
+    connection = sqlite3.connect("userdata.db")
+    cursor = connection.cursor()
+    cursor.execute("SELECT * FROM users")
+    rows = cursor.fetchall()
+    connection.close()
 
-    def save_data(self):
-        name = self.entry.get()
+    for row in rows:
+        print(f"Name: {row[0]}, Age: {row[1]}")
 
-        # Call custom function to save data to database
-        save_to_database(name)
+root = tk.Tk()
+root.title("User Information")
 
-        self.entry.delete(0, tk.END)
+name_label = tk.Label(root, text="Name:")
+name_label.pack()
+name_entry = tk.Entry(root)
+name_entry.pack()
 
-def save_to_database(name):
-    conn = sqlite3.connect('database.db')
-    c = conn.cursor()
+age_label = tk.Label(root, text="Age:")
+age_label.pack()
+age_entry = tk.Entry(root)
+age_entry.pack()
 
-    c.execute('CREATE TABLE IF NOT EXISTS users (name TEXT)')
-    c.execute('INSERT INTO users (name) VALUES (?)', (name,))
-    conn.commit()
+save_button = tk.Button(root, text="Save", command=save_data)
+save_button.pack()
 
-    conn.close()
+show_button = tk.Button(root, text="Show Data", command=show_data)
+show_button.pack()
 
-def main():
-    root = tk.Tk()
-    app = App(root)
-    root.mainloop()
-
-if __name__ == '__main__':
-    main()
+root.mainloop()
